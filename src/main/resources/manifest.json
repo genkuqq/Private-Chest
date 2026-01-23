@@ -1,0 +1,23 @@
+{
+    "Group": "Nukku",
+    "Name": "PrivateChest",
+    "Version": "1.0.0",
+    "Description": "Hytale Plugin",
+    "Authors": [
+        {
+            "Name": "Nukku",
+            "Url": ""
+        }
+    ],
+    "Website": "",
+    "ServerVersion": "*",
+    "Dependencies": {
+        "Hytale:EntityModule": "*"
+    },
+    "OptionalDependencies": {
+        
+    },
+    "DisabledByDefault": false,
+    "Main": "com.nukku.PrivateChest",
+    "IncludesAssetPack": true
+}
