@@ -1,11 +1,19 @@
-package com.nukku;
+package com.nukku.windows;
 
 import com.google.gson.JsonObject;
+import com.hypixel.hytale.component.ComponentAccessor;
+import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.protocol.packets.window.WindowType;
+import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.entity.entities.player.windows.ItemContainerWindow;
 import com.hypixel.hytale.server.core.entity.entities.player.windows.Window;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.nukku.components.ChestComponent;
+import com.nukku.managers.ChestManager;
+import com.nukku.managers.DataManager;
 
 import javax.annotation.Nonnull;
 import java.util.UUID;
@@ -26,35 +34,43 @@ public class ChestWindow extends Window implements ItemContainerWindow{
     @Nonnull
     @Override
     public JsonObject getData() {
-        JsonObject data = new JsonObject();
-        return data;
+        return new JsonObject();
     }
 
     @Override
-    protected boolean onOpen0() {
+    protected boolean onOpen0(@Nonnull Ref<EntityStore> ref, @Nonnull Store<EntityStore> store) {
         UUID playerUUID = this.getPlayerRef().getUuid();
+
         ChestComponent chestComponent = DataManager.load(playerUUID);
         ItemStack[] items = chestComponent.getItems();
-        for (int i = 0; i < items.length; i++) {
-            ItemStack item = items[i];
-            if (item == null || item.isEmpty()) {
-                continue;
+        if (items != null){
+            for (int i = 0; i < items.length; i++) {
+                ItemStack item = items[i];
+                if (item == null || item.isEmpty()) {
+                    continue;
+                }
+                container.addItemStackToSlot((short)i, item);
             }
-            container.addItemStackToSlot((short)i, item);
         }
         return true;
     }
 
     @Override
-    protected void onClose0() {
+    protected void onClose0(@Nonnull Ref<EntityStore> ref, @Nonnull ComponentAccessor<EntityStore> componentAccessor) {
+        assert this.getPlayerRef() != null;
         UUID playerUUID = this.getPlayerRef().getUuid();
+        Player player = componentAccessor.getComponent(ref, Player.getComponentType());
         ChestComponent chestComponent = ChestManager.getChest(playerUUID);
-        for (int i = 0; i < 26; i++){
+        ItemStack[] items = new ItemStack[chestComponent.getChestSize()];
+        for (int i = 0; i < chestComponent.getChestSize(); i++){
             ItemStack item = this.container.getItemStack((short) i);
             if (item != null){
-                chestComponent.setItem((short) i,item);
+                items[i]=item;
             }
         }
+        chestComponent.setItems(items);
         DataManager.save(playerUUID,chestComponent);
     }
+
+
 }

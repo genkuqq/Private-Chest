@@ -1,4 +1,4 @@
-package com.nukku;
+package com.nukku.commands;
 
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -13,20 +13,25 @@ import com.hypixel.hytale.server.core.inventory.container.SimpleItemContainer;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.hypixel.hytale.server.core.util.Config;
+import com.nukku.config.ChestConfig;
+import com.nukku.windows.ChestWindow;
 
 import javax.annotation.Nonnull;
 
 public class ChestCommand extends AbstractPlayerCommand {
-    public ChestCommand() {
+    private final Config<ChestConfig> config;
+    public ChestCommand(Config<ChestConfig> config) {
         super("chest", "Open your private Chest");
         this.addAliases("pc");
         this.requirePermission("privatechest.use");
+        this.config = config;
     }
 
     @Override
     protected void execute(@Nonnull CommandContext commandContext, @Nonnull Store<EntityStore> store, @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
         CommandSender sender = commandContext.sender();
-        SimpleItemContainer simpleItemContainer = new SimpleItemContainer((short) 27);
+        SimpleItemContainer simpleItemContainer = new SimpleItemContainer((short) config.get().getChestSize());
         ChestWindow chestWindow = new ChestWindow(simpleItemContainer);
         if (sender instanceof Player  player){
             PageManager pageManager = player.getPageManager();

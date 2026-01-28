@@ -1,4 +1,6 @@
-package com.nukku;
+package com.nukku.managers;
+
+import com.nukku.components.ChestComponent;
 
 import java.util.Map;
 import java.util.UUID;
