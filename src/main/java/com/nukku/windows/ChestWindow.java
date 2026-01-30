@@ -10,6 +10,7 @@ import com.hypixel.hytale.server.core.entity.entities.player.windows.ItemContain
 import com.hypixel.hytale.server.core.entity.entities.player.windows.Window;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.nukku.components.ChestComponent;
 import com.nukku.managers.ChestManager;
@@ -20,9 +21,11 @@ import java.util.UUID;
 
 public class ChestWindow extends Window implements ItemContainerWindow{
     private final ItemContainer container;
-    public ChestWindow(ItemContainer container) {
+    private final PlayerRef playerRef;
+    public ChestWindow(ItemContainer container, PlayerRef playerRef) {
         super(WindowType.Container);
         this.container = container;
+        this.playerRef = playerRef;
     }
 
     @Nonnull
@@ -39,7 +42,7 @@ public class ChestWindow extends Window implements ItemContainerWindow{
 
     @Override
     protected boolean onOpen0(@Nonnull Ref<EntityStore> ref, @Nonnull Store<EntityStore> store) {
-        UUID playerUUID = this.getPlayerRef().getUuid();
+        UUID playerUUID = this.playerRef.getUuid();
 
         ChestComponent chestComponent = DataManager.load(playerUUID);
         ItemStack[] items = chestComponent.getItems();
