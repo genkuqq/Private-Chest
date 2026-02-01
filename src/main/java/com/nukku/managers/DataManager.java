@@ -24,10 +24,23 @@ public final class DataManager {
         }
     }
 
-    public static void save(UUID uuid, ChestComponent chest) {
+    public static void save(UUID uuid, ChestComponent chest, Integer page) {
         File file = new File(FOLDER, uuid.toString() + ".json");
-        JsonObject root = new JsonObject();
-        root.addProperty("size", chest.getChestSize());
+        JsonObject root;
+        if (file.exists()) {
+            try (Reader r = new FileReader(file)) {
+                root = JsonParser.parseReader(r).getAsJsonObject();
+            } catch (Exception e) {
+                root = new JsonObject();
+            }
+        } else {
+            root = new JsonObject();
+        }
+        JsonObject pages = root.has("pages")
+                ? root.getAsJsonObject("pages")
+                : new JsonObject();
+        JsonObject pageObj = new JsonObject();
+        pageObj.addProperty("size", chest.getChestSize());
         JsonArray itemsArray = new JsonArray();
         ItemStack[] items = chest.getItems();
         for (int i = 0; i < items.length; i++) {
@@ -39,7 +52,9 @@ public final class DataManager {
             obj.addProperty("amount", item.getQuantity());
             itemsArray.add(obj);
         }
-        root.add("items", itemsArray);
+        pageObj.add("items", itemsArray);
+        pages.add(String.valueOf(page), pageObj);
+        root.add("pages", pages);
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
             GSON.toJson(root, writer);
         } catch (IOException e) {
@@ -47,29 +62,31 @@ public final class DataManager {
         }
     }
 
-    public static ChestComponent load(UUID uuid) {
+    public static ChestComponent load(UUID uuid,Integer page) {
         ChestComponent chest = new ChestComponent();
         chest.setChestSize(config.get().getChestSize());
         File file = new File(FOLDER, uuid.toString() + ".json");
-        if (!file.exists()) {
-            return chest;
-        }
+        if (!file.exists()) return chest;
         try (Reader reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)) {
             JsonObject root = JsonParser.parseReader(reader).getAsJsonObject();
-            int size = root.has("size") ? root.get("size").getAsInt() : 1;
+            JsonObject pages = root.getAsJsonObject("pages");
+            if (pages == null) return chest;
+            JsonObject pageObj = pages.getAsJsonObject(String.valueOf(page));
+            if (pageObj == null) return chest;
+            int size = pageObj.get("size").getAsInt();
             chest.setChestSize(size);
-            JsonArray itemsArray = root.getAsJsonArray("items");
+            ItemStack[] items = new ItemStack[size];
+            JsonArray itemsArray = pageObj.getAsJsonArray("items");
             if (itemsArray != null) {
-                ItemStack[] items = new ItemStack[size];
                 for (JsonElement el : itemsArray) {
                     JsonObject obj = el.getAsJsonObject();
                     int slot = obj.get("slot").getAsInt();
                     String itemId = obj.get("item").getAsString();
                     int amount = obj.get("amount").getAsInt();
-                    items[slot] = new ItemStack(itemId,amount);
+                    items[slot] = new ItemStack(itemId, amount);
                 }
-                chest.setItems(items);
             }
+            chest.setItems(items);
             return chest;
         } catch (Exception e) {
             e.printStackTrace();

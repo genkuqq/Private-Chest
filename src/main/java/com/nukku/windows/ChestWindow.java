@@ -22,10 +22,12 @@ import java.util.UUID;
 public class ChestWindow extends Window implements ItemContainerWindow{
     private final ItemContainer container;
     private final PlayerRef playerRef;
-    public ChestWindow(ItemContainer container, PlayerRef playerRef) {
+    private final Integer chestPage;
+    public ChestWindow(ItemContainer container, PlayerRef playerRef, Integer chestPage) {
         super(WindowType.Container);
         this.container = container;
         this.playerRef = playerRef;
+        this.chestPage = chestPage;
     }
 
     @Nonnull
@@ -44,7 +46,7 @@ public class ChestWindow extends Window implements ItemContainerWindow{
     protected boolean onOpen0(@Nonnull Ref<EntityStore> ref, @Nonnull Store<EntityStore> store) {
         UUID playerUUID = this.playerRef.getUuid();
 
-        ChestComponent chestComponent = DataManager.load(playerUUID);
+        ChestComponent chestComponent = DataManager.load(playerUUID,chestPage);
         ItemStack[] items = chestComponent.getItems();
         if (items != null){
             for (int i = 0; i < items.length; i++) {
@@ -63,7 +65,7 @@ public class ChestWindow extends Window implements ItemContainerWindow{
         assert this.getPlayerRef() != null;
         UUID playerUUID = this.getPlayerRef().getUuid();
         Player player = componentAccessor.getComponent(ref, Player.getComponentType());
-        ChestComponent chestComponent = ChestManager.getChest(playerUUID);
+        ChestComponent chestComponent = ChestManager.getChest(playerUUID,chestPage);
         ItemStack[] items = new ItemStack[chestComponent.getChestSize()];
         for (int i = 0; i < chestComponent.getChestSize(); i++){
             ItemStack item = this.container.getItemStack((short) i);
@@ -72,7 +74,7 @@ public class ChestWindow extends Window implements ItemContainerWindow{
             }
         }
         chestComponent.setItems(items);
-        DataManager.save(playerUUID,chestComponent);
+        DataManager.save(playerUUID,chestComponent,chestPage);
     }
 
 
