@@ -12,16 +12,16 @@ import java.util.UUID;
 
 public final class ChestRepository {
 
-    private final DatabaseManager db;
+    private static DatabaseManager db;
     PrivateChest privateChest = PrivateChest.get();
 
-    public ChestRepository(DatabaseManager db) {
-        this.db = db;
+    public ChestRepository() {
+        db = privateChest.getDatabase();
         Config<ChestConfig> config = privateChest.getConfig();
     }
 
     // WRITE (insert or update)
-    public void saveChest(UUID uuid, int page, String jsonData) {
+    public static void saveChest(UUID uuid, int page, String jsonData) {
         String sql = """
             INSERT INTO player_chest (uuid, page, data)
             VALUES (?, ?, ?)
@@ -43,7 +43,7 @@ public final class ChestRepository {
     }
 
     // READ
-    public String loadChest(UUID uuid, int page) {
+    public static String loadChest(UUID uuid, int page) {
         String sql = "SELECT data FROM player_chest WHERE uuid = ? AND page = ?";
 
         try (Connection c = db.getConnection();

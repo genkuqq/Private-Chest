@@ -1,5 +1,6 @@
 package com.nukku.managers;
 
+import com.nukku.PrivateChest;
 import com.nukku.components.ChestComponent;
 
 import java.util.Map;
@@ -7,7 +8,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ChestManager {
-
     private static final Map<UUID, Map<Integer, ChestComponent>> CHESTS =
             new ConcurrentHashMap<>();
 
@@ -16,4 +16,5 @@ public class ChestManager {
                 .computeIfAbsent(uuid, u -> new ConcurrentHashMap<>())
                 .computeIfAbsent(page, p -> DataManager.load(uuid, p));
     }
+
 }

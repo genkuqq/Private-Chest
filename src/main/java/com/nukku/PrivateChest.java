@@ -10,7 +10,6 @@ import com.nukku.managers.DataManager;
 import com.nukku.managers.DatabaseManager;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 
 
 public class PrivateChest extends JavaPlugin {
@@ -31,6 +30,9 @@ public class PrivateChest extends JavaPlugin {
     public static PrivateChest get() {
         return instance;
     }
+    public DatabaseManager getDatabase() {
+        return this.database;
+    }
 
     public Config<ChestConfig> getConfig() {
         return config;
@@ -49,7 +51,7 @@ public class PrivateChest extends JavaPlugin {
                 "root"
         );
 
-        chestRepository = new ChestRepository(database);
+        chestRepository = new ChestRepository();
 
     }
 
