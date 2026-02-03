@@ -27,61 +27,84 @@ import java.util.Collection;
 
 public class ChestCommand extends AbstractPlayerCommand {
     private final Config<ChestConfig> config;
-    private final DefaultArg<Integer> chestPage;
     public ChestCommand(Config<ChestConfig> config) {
         super("chest", "Open your private Chest");
         this.requirePermission("privatechest.use");
         this.config = config;
-        this.chestPage = this.withDefaultArg("page", "Chest page", ArgTypes.INTEGER,1,"First Page");
-        this.addUsageVariant(new ChestPlayerInspectCommand(config));
+        this.addUsageVariant(new ChestSelfPage(config));
+        this.addUsageVariant(new ChestPlayerPage(config));
     }
 
     @Override
     protected void execute(@Nonnull CommandContext commandContext, @Nonnull Store<EntityStore> store, @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
         CommandSender sender = commandContext.sender();
-        if (chestPage.get(commandContext) == null) {
-            return;
-        }
-        if (!sender.hasPermission("privatechest.use."+commandContext.get(chestPage))){
-            // no perm message
-            return;
-        }
         SimpleItemContainer simpleItemContainer = new SimpleItemContainer((short) config.get().getChestSize());
-        ChestWindow chestWindow = new ChestWindow(simpleItemContainer,playerRef,chestPage.get(commandContext));
+        ChestWindow chestWindow = new ChestWindow(simpleItemContainer,playerRef,1);
         if (sender instanceof Player  player){
             PageManager pageManager = player.getPageManager();
             pageManager.setPageWithWindows(ref, store, Page.Bench, true, new Window[]{chestWindow});
         }
     }
+    static class ChestSelfPage extends AbstractPlayerCommand {
 
-    private static class ChestPlayerInspectCommand extends AbstractPlayerCommand{
         private final Config<ChestConfig> config;
-        private final RequiredArg<String> playerName;
-        private final DefaultArg<Integer> chestPage;
+        private final RequiredArg<Integer> page;
 
-        public ChestPlayerInspectCommand(Config<ChestConfig> config) {
-            super("Inspect player's chests");
+        ChestSelfPage(Config<ChestConfig> config) {
+            super("");
             this.config = config;
-            this.requirePermission("privatechest.use.admin");
-            this.playerName = this.withRequiredArg("name","Player Name",ArgTypes.STRING);
-            this.chestPage = this.withDefaultArg("page", "Chest page", ArgTypes.INTEGER,1,"First Page");
+            this.page = this.withRequiredArg("page", "Chest page", ArgTypes.INTEGER);
         }
 
         @Override
-        protected void execute(@Nonnull CommandContext commandContext, @Nonnull Store<EntityStore> store, @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+        protected void execute(
+                @Nonnull CommandContext commandContext,
+                @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref,
+                @Nonnull PlayerRef playerRef,
+                @Nonnull World world
+        ) {
             CommandSender sender = commandContext.sender();
-            if (playerName.get(commandContext) == null || chestPage.get(commandContext) == null) {
+            if (!sender.hasPermission("privatechest.use."+commandContext.get(page))){
+                // no perm message
                 return;
             }
-            if (!sender.hasPermission("privatechest.use."+commandContext.get(chestPage))){
-                // perm error
-                return;
+            SimpleItemContainer simpleItemContainer = new SimpleItemContainer((short) config.get().getChestSize());
+            ChestWindow chestWindow = new ChestWindow(simpleItemContainer,playerRef,commandContext.get(page));
+            if (sender instanceof Player  player){
+                PageManager pageManager = player.getPageManager();
+                pageManager.setPageWithWindows(ref, store, Page.Bench, true, new Window[]{chestWindow});
             }
+        }
+    }
+    static class ChestPlayerPage extends AbstractPlayerCommand {
+
+        private final Config<ChestConfig> config;
+        private final RequiredArg<Integer> page;
+        private final RequiredArg<String> player;
+
+        ChestPlayerPage(Config<ChestConfig> config) {
+            super("");
+            this.config = config;
+            this.requirePermission("privatechest.use.admin");
+            this.page = this.withRequiredArg("page", "Chest page", ArgTypes.INTEGER);
+            this.player = this.withRequiredArg("player", "Player", ArgTypes.STRING);
+        }
+
+        @Override
+        protected void execute(
+                @Nonnull CommandContext commandContext,
+                @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref,
+                @Nonnull PlayerRef playerRef,
+                @Nonnull World world
+        ) {
+            CommandSender sender = commandContext.sender();
             Collection<PlayerRef> players = world.getPlayerRefs();
             for (PlayerRef playerRefer : players){
-                if (playerRefer.getUsername().equals(playerName.get(commandContext))){
+                if (playerRefer.getUsername().equals(player.get(commandContext))){
                     SimpleItemContainer simpleItemContainer = new SimpleItemContainer((short) config.get().getChestSize());
-                    ChestWindow chestWindow = new ChestWindow(simpleItemContainer,playerRef,commandContext.get(chestPage));
+                    ChestWindow chestWindow = new ChestWindow(simpleItemContainer,playerRef,commandContext.get(page));
                     if (sender instanceof Player  player){
                         PageManager pageManager = player.getPageManager();
                         pageManager.setPageWithWindows(ref, store, Page.Bench, true, new Window[]{chestWindow});
