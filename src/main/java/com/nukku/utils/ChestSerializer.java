@@ -10,9 +10,6 @@ public final class ChestSerializer {
 
     private ChestSerializer() {}
 
-    // =========================
-    // ItemStack[] → JSON
-    // =========================
     public static String toJson(ItemStack[] items) {
         JsonObject root = new JsonObject();
         root.addProperty("version", DATA_VERSION);
@@ -34,10 +31,6 @@ public final class ChestSerializer {
         root.add("items", array);
         return GSON.toJson(root);
     }
-
-    // =========================
-    // JSON → ItemStack[]
-    // =========================
     public static ItemStack[] fromJson(String json, int size) {
         ItemStack[] items = new ItemStack[size];
 

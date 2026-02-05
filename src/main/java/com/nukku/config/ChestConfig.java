@@ -23,8 +23,8 @@ public class ChestConfig {
         return this;
     }
 
-    public void setChestSize(Integer talkRange) {
-        this.chestSize = talkRange;
+    public void setChestSize(Integer chestSize) {
+        this.chestSize = chestSize;
     }
 
     public int getChestSize() {
