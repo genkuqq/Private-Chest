@@ -5,26 +5,19 @@ import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import com.hypixel.hytale.server.core.util.Config;
 import com.nukku.commands.ChestCommand;
 import com.nukku.config.ChestConfig;
-import com.nukku.managers.ChestRepository;
-import com.nukku.managers.DataManager;
-import com.nukku.managers.DatabaseManager;
-
-import java.sql.Connection;
-import java.sql.DriverManager;
+import com.nukku.config.DatabaseConfig;
+import com.nukku.datamanagers.DataManagers;
+import com.nukku.datamanagers.MysqlDatabase;
 
 
 public class PrivateChest extends JavaPlugin {
-
-    Connection conn = null;
     private static PrivateChest instance;
-    private final Config<ChestConfig> config;
-    private final DataManager dataManager;
-    private DatabaseManager database;
-    private ChestRepository chestRepository;
+    private final Config<ChestConfig> chestConfig;
+    private final Config<DatabaseConfig> databaseConfig;
     public PrivateChest(JavaPluginInit init) {
         super(init);
-        this.config = this.withConfig("chestconfig", ChestConfig.CODEC);
-        this.dataManager = new DataManager(getConfig());
+        this.chestConfig = this.withConfig("chestConfig", ChestConfig.CODEC);
+        this.databaseConfig = this.withConfig("databaseConfig", DatabaseConfig.CODEC);
     }
 
 
@@ -32,47 +25,27 @@ public class PrivateChest extends JavaPlugin {
         return instance;
     }
 
-    public Config<ChestConfig> getConfig() {
-        return config;
+    public Config<ChestConfig> getChestConfig() {
+        return chestConfig;
+    }
+    public Config<DatabaseConfig> getDatabaseConfig() {
+        return databaseConfig;
     }
 
     @Override
     protected void setup() {
         super.setup();
         instance = this;
-        this.config.save();
-        this.getCommandRegistry().registerCommand(new ChestCommand(config));
-        database = new DatabaseManager(
-                "jdbc:mysql://127.0.0.1:3306/test" +
-                        "?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC",
-                "root",
-                "root"
-        );
-
-        chestRepository = new ChestRepository(database);
-
+        this.chestConfig.save();
+        this.databaseConfig.save();
+        this.getCommandRegistry().registerCommand(new ChestCommand(chestConfig));
+        DataManagers.init(this.databaseConfig);
     }
 
     @Override
     protected void shutdown() {
-        if (database != null) {
-            database.shutdown();
+        if (DataManagers.get() != null) {
+            MysqlDatabase.shutdown();
         }
-    }
-
-    private void connectMysql() {
-        try {
-            database = new DatabaseManager(
-                    "jdbc:mysql://127.0.0.1:3306/test?useSSL=false&allowPublicKeyRetrieval=true",
-                    "root",
-                    "root"
-            );
-        } catch (Exception e) {
-            System.out.println("Database error: " + e.getMessage());
-        }
-    }
-
-    public ChestRepository getChestRepository() {
-        return chestRepository;
     }
 }

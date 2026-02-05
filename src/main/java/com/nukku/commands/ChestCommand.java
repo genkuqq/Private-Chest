@@ -3,11 +3,8 @@ package com.nukku.commands;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.protocol.packets.interface_.Page;
-import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.CommandSender;
-import com.hypixel.hytale.server.core.command.system.arguments.system.DefaultArg;
-import com.hypixel.hytale.server.core.command.system.arguments.system.OptionalArg;
 import com.hypixel.hytale.server.core.command.system.arguments.system.RequiredArg;
 import com.hypixel.hytale.server.core.command.system.arguments.types.ArgTypes;
 import com.hypixel.hytale.server.core.command.system.basecommands.AbstractPlayerCommand;
@@ -19,7 +16,9 @@ import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.core.util.Config;
+import com.nukku.components.ChestComponent;
 import com.nukku.config.ChestConfig;
+import com.nukku.datamanagers.DataManagers;
 import com.nukku.windows.ChestWindow;
 
 import javax.annotation.Nonnull;
@@ -39,7 +38,8 @@ public class ChestCommand extends AbstractPlayerCommand {
     protected void execute(@Nonnull CommandContext commandContext, @Nonnull Store<EntityStore> store, @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
         CommandSender sender = commandContext.sender();
         SimpleItemContainer simpleItemContainer = new SimpleItemContainer((short) config.get().getChestSize());
-        ChestWindow chestWindow = new ChestWindow(simpleItemContainer,playerRef,1);
+        ChestComponent chest = DataManagers.get().load(playerRef.getUuid(),1);
+        ChestWindow chestWindow = new ChestWindow(simpleItemContainer,playerRef,1,chest);
         if (sender instanceof Player  player){
             PageManager pageManager = player.getPageManager();
             pageManager.setPageWithWindows(ref, store, Page.Bench, true, new Window[]{chestWindow});
@@ -70,7 +70,8 @@ public class ChestCommand extends AbstractPlayerCommand {
                 return;
             }
             SimpleItemContainer simpleItemContainer = new SimpleItemContainer((short) config.get().getChestSize());
-            ChestWindow chestWindow = new ChestWindow(simpleItemContainer,playerRef,commandContext.get(page));
+            ChestComponent chest = DataManagers.get().load(playerRef.getUuid(),commandContext.get(page));
+            ChestWindow chestWindow = new ChestWindow(simpleItemContainer,playerRef,commandContext.get(page),chest);
             if (sender instanceof Player  player){
                 PageManager pageManager = player.getPageManager();
                 pageManager.setPageWithWindows(ref, store, Page.Bench, true, new Window[]{chestWindow});
@@ -104,7 +105,8 @@ public class ChestCommand extends AbstractPlayerCommand {
             for (PlayerRef playerRefer : players){
                 if (playerRefer.getUsername().equals(player.get(commandContext))){
                     SimpleItemContainer simpleItemContainer = new SimpleItemContainer((short) config.get().getChestSize());
-                    ChestWindow chestWindow = new ChestWindow(simpleItemContainer,playerRef,commandContext.get(page));
+                    ChestComponent chest = DataManagers.get().load(playerRef.getUuid(),commandContext.get(page));
+                    ChestWindow chestWindow = new ChestWindow(simpleItemContainer,playerRef,commandContext.get(page),chest);
                     if (sender instanceof Player  player){
                         PageManager pageManager = player.getPageManager();
                         pageManager.setPageWithWindows(ref, store, Page.Bench, true, new Window[]{chestWindow});

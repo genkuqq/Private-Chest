@@ -1,4 +1,4 @@
-package com.nukku.managers;
+package com.nukku.datamanagers;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -6,11 +6,11 @@ import com.zaxxer.hikari.HikariDataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public final class DatabaseManager {
+public final class MysqlDatabase {
 
-    private final HikariDataSource dataSource;
+    private static HikariDataSource dataSource;
 
-    public DatabaseManager(String jdbcUrl, String user, String pass) {
+    public MysqlDatabase(String jdbcUrl, String user, String pass) {
         HikariConfig config = new HikariConfig();
 
         config.setJdbcUrl(jdbcUrl);
@@ -21,14 +21,14 @@ public final class DatabaseManager {
         config.setMinimumIdle(2);
         config.setConnectionTimeout(3000);
 
-        this.dataSource = new HikariDataSource(config);
+        dataSource = new HikariDataSource(config);
     }
 
     public Connection getConnection() throws SQLException {
         return dataSource.getConnection();
     }
 
-    public void shutdown() {
+    public static void shutdown() {
         dataSource.close();
     }
 }
