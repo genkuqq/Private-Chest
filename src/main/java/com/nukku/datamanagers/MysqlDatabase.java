@@ -21,6 +21,8 @@ public final class MysqlDatabase {
         config.setMinimumIdle(2);
         config.setConnectionTimeout(3000);
 
+        config.setDriverClassName("com.mysql.cj.jdbc.Driver");
+
         dataSource = new HikariDataSource(config);
     }
 
