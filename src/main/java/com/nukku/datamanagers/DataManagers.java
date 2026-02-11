@@ -1,8 +1,9 @@
 package com.nukku.datamanagers;
 
 import com.hypixel.hytale.server.core.util.Config;
-import com.nukku.config.ChestConfig;
 import com.nukku.config.DatabaseConfig;
+import com.nukku.datamanagers.mysql.MysqlDataManager;
+import com.nukku.datamanagers.sqlite.SqliteDataManager;
 
 public final class DataManagers {
 
@@ -10,7 +11,7 @@ public final class DataManagers {
 
     public static void init(Config<DatabaseConfig> config) {
         INSTANCE = switch (config.get().getDatabaseType()) {
-            case "Json" -> new JsonDataManager();
+            case "Sqlite" -> new SqliteDataManager();
             case "Mysql" -> new MysqlDataManager();
             default -> null;
         };

@@ -7,7 +7,7 @@ import com.nukku.commands.ChestCommand;
 import com.nukku.config.ChestConfig;
 import com.nukku.config.DatabaseConfig;
 import com.nukku.datamanagers.DataManagers;
-import com.nukku.datamanagers.MysqlDatabase;
+import com.nukku.datamanagers.mysql.MysqlDatabase;
 
 
 public class PrivateChest extends JavaPlugin {
