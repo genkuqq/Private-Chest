@@ -27,7 +27,7 @@ javadoc {
 // compile against their code. This requires you to have Hytale installed using
 // the official launcher for now.
 dependencies {
-    implementation(files("$hytaleHome/install/$patchline/package/game/latest/Server/HytaleServer.jar"))
+    compileOnly(files("$hytaleHome/install/$patchline/package/game/latest/Server/HytaleServer.jar"))
     implementation("org.slf4j:slf4j-simple:2.0.13")
     implementation("com.zaxxer:HikariCP:5.1.0")
     implementation("com.mysql:mysql-connector-j:9.6.0")
@@ -95,8 +95,7 @@ publishing {
 }
 shadowJar {
     archiveClassifier.set("")
-//    mergeServiceFiles()
-    minimize()
+    mergeServiceFiles()
     relocate 'com.zaxxer.hikari', 'com.nukku.libs.hikari'
 }
 apply plugin: 'com.gradleup.shadow'
