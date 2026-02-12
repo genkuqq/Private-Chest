@@ -1,7 +1,9 @@
 package com.nukku.utils;
 
 import com.google.gson.*;
+import com.hypixel.hytale.codec.Codec;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
+import org.bson.BsonDocument;
 
 public final class ChestSerializer {
 
@@ -24,7 +26,14 @@ public final class ChestSerializer {
             obj.addProperty("slot", slot);
             obj.addProperty("id", stack.getItem().getId());
             obj.addProperty("count", stack.getQuantity());
-
+            obj.addProperty("durability", stack.getDurability());
+            obj.addProperty("maxDurability", stack.getMaxDurability());
+            BsonDocument enchantDoc = stack.getFromMetadataOrNull("Enchantments", Codec.BSON_DOCUMENT);
+            if (enchantDoc != null && !enchantDoc.isEmpty()) {
+                BsonDocument wrapper = new BsonDocument();
+                wrapper.put("Enchantments", enchantDoc);
+                obj.addProperty("meta", wrapper.toJson());
+            }
             array.add(obj);
         }
 
@@ -39,12 +48,6 @@ public final class ChestSerializer {
         }
 
         JsonObject root = JsonParser.parseString(json).getAsJsonObject();
-        int version = root.has("version") ? root.get("version").getAsInt() : 1;
-
-        if (version != DATA_VERSION) {
-            // Future-proof: handle migrations here
-            // For now, assume version 1
-        }
 
         JsonArray array = root.getAsJsonArray("items");
         if (array == null) return items;
@@ -57,7 +60,18 @@ public final class ChestSerializer {
 
             String itemId = obj.get("id").getAsString();
             int count = obj.get("count").getAsInt();
-            items[slot] = new ItemStack(itemId, count);
+            double durability = obj.get("durability").getAsDouble();
+            double maxDurability = obj.get("maxDurability").getAsDouble();
+            BsonDocument metadata = null;
+
+            if (obj.has("meta")) {
+                String metaJson = obj.get("meta").getAsString();
+
+                if (metaJson != null && !metaJson.trim().isEmpty()) {
+                    metadata = BsonDocument.parse(metaJson);
+                }
+            }
+            items[slot] = new ItemStack(itemId, count, durability, maxDurability,metadata);
         }
 
         return items;
