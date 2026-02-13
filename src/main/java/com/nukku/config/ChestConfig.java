@@ -8,16 +8,16 @@ public class ChestConfig {
 
     private Integer chestSize = 27;
     public static final BuilderCodec<ChestConfig> CODEC = BuilderCodec.builder(
-                    ChestConfig.class,
-                    ChestConfig::new
-            )
-            .append(
-                    new KeyedCodec<>("Chest Size", Codec.INTEGER),
-                    ChestConfig::setChestSize,
-                    ChestConfig::getChestSize
-            )
-            .add()
-            .build();
+        ChestConfig.class,
+        ChestConfig::new
+    )
+        .append(
+            new KeyedCodec<>("Chest Size", Codec.INTEGER),
+            ChestConfig::setChestSize,
+            ChestConfig::getChestSize
+        )
+        .add()
+        .build();
 
     public ChestConfig chestConfig() {
         return this;
@@ -30,5 +30,4 @@ public class ChestConfig {
     public int getChestSize() {
         return chestSize;
     }
-
 }

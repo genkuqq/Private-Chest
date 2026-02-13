@@ -9,17 +9,20 @@ import com.nukku.config.DatabaseConfig;
 import com.nukku.datamanagers.DataManagers;
 import com.nukku.datamanagers.mysql.MysqlDatabase;
 
-
 public class PrivateChest extends JavaPlugin {
+
     private static PrivateChest instance;
     private final Config<ChestConfig> chestConfig;
     private final Config<DatabaseConfig> databaseConfig;
+
     public PrivateChest(JavaPluginInit init) {
         super(init);
         this.chestConfig = this.withConfig("chestConfig", ChestConfig.CODEC);
-        this.databaseConfig = this.withConfig("databaseConfig", DatabaseConfig.CODEC);
+        this.databaseConfig = this.withConfig(
+            "databaseConfig",
+            DatabaseConfig.CODEC
+        );
     }
-
 
     public static PrivateChest get() {
         return instance;
@@ -28,6 +31,7 @@ public class PrivateChest extends JavaPlugin {
     public Config<ChestConfig> getChestConfig() {
         return chestConfig;
     }
+
     public Config<DatabaseConfig> getDatabaseConfig() {
         return databaseConfig;
     }
@@ -38,7 +42,9 @@ public class PrivateChest extends JavaPlugin {
         instance = this;
         this.chestConfig.save();
         this.databaseConfig.save();
-        this.getCommandRegistry().registerCommand(new ChestCommand(chestConfig));
+        this.getCommandRegistry().registerCommand(
+            new ChestCommand(chestConfig)
+        );
         DataManagers.init(this.databaseConfig);
     }
 

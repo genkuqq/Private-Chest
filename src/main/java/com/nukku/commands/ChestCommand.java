@@ -20,12 +20,13 @@ import com.nukku.components.ChestComponent;
 import com.nukku.config.ChestConfig;
 import com.nukku.datamanagers.DataManagers;
 import com.nukku.windows.ChestWindow;
-
-import javax.annotation.Nonnull;
 import java.util.Collection;
+import javax.annotation.Nonnull;
 
 public class ChestCommand extends AbstractPlayerCommand {
+
     private final Config<ChestConfig> config;
+
     public ChestCommand(Config<ChestConfig> config) {
         super("chest", "Open your private Chest");
         this.requirePermission("privatechest.use");
@@ -35,16 +36,36 @@ public class ChestCommand extends AbstractPlayerCommand {
     }
 
     @Override
-    protected void execute(@Nonnull CommandContext commandContext, @Nonnull Store<EntityStore> store, @Nonnull Ref<EntityStore> ref, @Nonnull PlayerRef playerRef, @Nonnull World world) {
+    protected void execute(
+        @Nonnull CommandContext commandContext,
+        @Nonnull Store<EntityStore> store,
+        @Nonnull Ref<EntityStore> ref,
+        @Nonnull PlayerRef playerRef,
+        @Nonnull World world
+    ) {
         CommandSender sender = commandContext.sender();
-        SimpleItemContainer simpleItemContainer = new SimpleItemContainer((short) config.get().getChestSize());
-        ChestComponent chest = DataManagers.get().load(playerRef.getUuid(),1);
-        ChestWindow chestWindow = new ChestWindow(simpleItemContainer,playerRef,1,chest);
-        if (sender instanceof Player  player){
+        SimpleItemContainer simpleItemContainer = new SimpleItemContainer(
+            (short) config.get().getChestSize()
+        );
+        ChestComponent chest = DataManagers.get().load(playerRef.getUuid(), 1);
+        ChestWindow chestWindow = new ChestWindow(
+            simpleItemContainer,
+            playerRef,
+            1,
+            chest
+        );
+        if (sender instanceof Player player) {
             PageManager pageManager = player.getPageManager();
-            pageManager.setPageWithWindows(ref, store, Page.Bench, true, new Window[]{chestWindow});
+            pageManager.setPageWithWindows(
+                ref,
+                store,
+                Page.Bench,
+                true,
+                new Window[] { chestWindow }
+            );
         }
     }
+
     static class ChestSelfPage extends AbstractPlayerCommand {
 
         private final Config<ChestConfig> config;
@@ -53,31 +74,56 @@ public class ChestCommand extends AbstractPlayerCommand {
         ChestSelfPage(Config<ChestConfig> config) {
             super("");
             this.config = config;
-            this.page = this.withRequiredArg("page", "Chest page", ArgTypes.INTEGER);
+            this.page = this.withRequiredArg(
+                "page",
+                "Chest page",
+                ArgTypes.INTEGER
+            );
         }
 
         @Override
         protected void execute(
-                @Nonnull CommandContext commandContext,
-                @Nonnull Store<EntityStore> store,
-                @Nonnull Ref<EntityStore> ref,
-                @Nonnull PlayerRef playerRef,
-                @Nonnull World world
+            @Nonnull CommandContext commandContext,
+            @Nonnull Store<EntityStore> store,
+            @Nonnull Ref<EntityStore> ref,
+            @Nonnull PlayerRef playerRef,
+            @Nonnull World world
         ) {
             CommandSender sender = commandContext.sender();
-            if (!sender.hasPermission("privatechest.use."+commandContext.get(page))){
+            if (
+                !sender.hasPermission(
+                    "privatechest.use." + commandContext.get(page)
+                )
+            ) {
                 // no perm message
                 return;
             }
-            SimpleItemContainer simpleItemContainer = new SimpleItemContainer((short) config.get().getChestSize());
-            ChestComponent chest = DataManagers.get().load(playerRef.getUuid(),commandContext.get(page));
-            ChestWindow chestWindow = new ChestWindow(simpleItemContainer,playerRef,commandContext.get(page),chest);
-            if (sender instanceof Player  player){
+            SimpleItemContainer simpleItemContainer = new SimpleItemContainer(
+                (short) config.get().getChestSize()
+            );
+            ChestComponent chest = DataManagers.get().load(
+                playerRef.getUuid(),
+                commandContext.get(page)
+            );
+            ChestWindow chestWindow = new ChestWindow(
+                simpleItemContainer,
+                playerRef,
+                commandContext.get(page),
+                chest
+            );
+            if (sender instanceof Player player) {
                 PageManager pageManager = player.getPageManager();
-                pageManager.setPageWithWindows(ref, store, Page.Bench, true, new Window[]{chestWindow});
+                pageManager.setPageWithWindows(
+                    ref,
+                    store,
+                    Page.Bench,
+                    true,
+                    new Window[] { chestWindow }
+                );
             }
         }
     }
+
     static class ChestPlayerPage extends AbstractPlayerCommand {
 
         private final Config<ChestConfig> config;
@@ -88,28 +134,55 @@ public class ChestCommand extends AbstractPlayerCommand {
             super("");
             this.config = config;
             this.requirePermission("privatechest.use.admin");
-            this.page = this.withRequiredArg("page", "Chest page", ArgTypes.INTEGER);
-            this.player = this.withRequiredArg("player", "Player", ArgTypes.STRING);
+            this.page = this.withRequiredArg(
+                "page",
+                "Chest page",
+                ArgTypes.INTEGER
+            );
+            this.player = this.withRequiredArg(
+                "player",
+                "Player",
+                ArgTypes.STRING
+            );
         }
 
         @Override
         protected void execute(
-                @Nonnull CommandContext commandContext,
-                @Nonnull Store<EntityStore> store,
-                @Nonnull Ref<EntityStore> ref,
-                @Nonnull PlayerRef playerRef,
-                @Nonnull World world
+            @Nonnull CommandContext commandContext,
+            @Nonnull Store<EntityStore> store,
+            @Nonnull Ref<EntityStore> ref,
+            @Nonnull PlayerRef playerRef,
+            @Nonnull World world
         ) {
             CommandSender sender = commandContext.sender();
             Collection<PlayerRef> players = world.getPlayerRefs();
-            for (PlayerRef playerRefer : players){
-                if (playerRefer.getUsername().equals(player.get(commandContext))){
-                    SimpleItemContainer simpleItemContainer = new SimpleItemContainer((short) config.get().getChestSize());
-                    ChestComponent chest = DataManagers.get().load(playerRef.getUuid(),commandContext.get(page));
-                    ChestWindow chestWindow = new ChestWindow(simpleItemContainer,playerRef,commandContext.get(page),chest);
-                    if (sender instanceof Player  player){
+            for (PlayerRef playerRefer : players) {
+                if (
+                    playerRefer.getUsername().equals(player.get(commandContext))
+                ) {
+                    SimpleItemContainer simpleItemContainer =
+                        new SimpleItemContainer(
+                            (short) config.get().getChestSize()
+                        );
+                    ChestComponent chest = DataManagers.get().load(
+                        playerRef.getUuid(),
+                        commandContext.get(page)
+                    );
+                    ChestWindow chestWindow = new ChestWindow(
+                        simpleItemContainer,
+                        playerRef,
+                        commandContext.get(page),
+                        chest
+                    );
+                    if (sender instanceof Player player) {
                         PageManager pageManager = player.getPageManager();
-                        pageManager.setPageWithWindows(ref, store, Page.Bench, true, new Window[]{chestWindow});
+                        pageManager.setPageWithWindows(
+                            ref,
+                            store,
+                            Page.Bench,
+                            true,
+                            new Window[] { chestWindow }
+                        );
                     }
                 }
             }

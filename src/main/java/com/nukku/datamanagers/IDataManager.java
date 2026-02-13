@@ -1,7 +1,6 @@
 package com.nukku.datamanagers;
 
 import com.nukku.components.ChestComponent;
-
 import java.util.UUID;
 
 public interface IDataManager {

@@ -28,7 +28,10 @@ public final class ChestSerializer {
             obj.addProperty("count", stack.getQuantity());
             obj.addProperty("durability", stack.getDurability());
             obj.addProperty("maxDurability", stack.getMaxDurability());
-            BsonDocument enchantDoc = stack.getFromMetadataOrNull("Enchantments", Codec.BSON_DOCUMENT);
+            BsonDocument enchantDoc = stack.getFromMetadataOrNull(
+                "Enchantments",
+                Codec.BSON_DOCUMENT
+            );
             if (enchantDoc != null && !enchantDoc.isEmpty()) {
                 BsonDocument wrapper = new BsonDocument();
                 wrapper.put("Enchantments", enchantDoc);
@@ -40,6 +43,7 @@ public final class ChestSerializer {
         root.add("items", array);
         return GSON.toJson(root);
     }
+
     public static ItemStack[] fromJson(String json, int size) {
         ItemStack[] items = new ItemStack[size];
 
@@ -71,7 +75,13 @@ public final class ChestSerializer {
                     metadata = BsonDocument.parse(metaJson);
                 }
             }
-            items[slot] = new ItemStack(itemId, count, durability, maxDurability,metadata);
+            items[slot] = new ItemStack(
+                itemId,
+                count,
+                durability,
+                maxDurability,
+                metadata
+            );
         }
 
         return items;
