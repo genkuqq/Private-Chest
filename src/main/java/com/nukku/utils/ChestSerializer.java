@@ -26,8 +26,11 @@ public final class ChestSerializer {
             obj.addProperty("slot", slot);
             obj.addProperty("id", stack.getItem().getId());
             obj.addProperty("count", stack.getQuantity());
-            obj.addProperty("durability", stack.getDurability());
-            obj.addProperty("maxDurability", stack.getMaxDurability());
+            System.out.println(stack.getDurability());
+            if (stack.getDurability() >= 1){
+                obj.addProperty("durability", stack.getDurability());
+                obj.addProperty("maxDurability", stack.getMaxDurability());
+            }
             BsonDocument enchantDoc = stack.getFromMetadataOrNull(
                 "Enchantments",
                 Codec.BSON_DOCUMENT
@@ -58,14 +61,18 @@ public final class ChestSerializer {
 
         for (JsonElement el : array) {
             JsonObject obj = el.getAsJsonObject();
+            double durability = 0;
+            double maxDurability = 0;
 
             int slot = obj.get("slot").getAsInt();
             if (slot < 0 || slot >= size) continue;
 
             String itemId = obj.get("id").getAsString();
             int count = obj.get("count").getAsInt();
-            double durability = obj.get("durability").getAsDouble();
-            double maxDurability = obj.get("maxDurability").getAsDouble();
+            if (obj.get("durability") != null){
+                durability = obj.get("durability").getAsDouble();
+                maxDurability = obj.get("maxDurability").getAsDouble();
+            }
             BsonDocument metadata = null;
 
             if (obj.has("meta")) {

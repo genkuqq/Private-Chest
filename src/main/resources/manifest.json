@@ -10,14 +10,12 @@
         }
     ],
     "Website": "",
-    "ServerVersion": "*",
+    "DisabledByDefault": false,
+    "IncludesAssetPack": false,
     "Dependencies": {
         "Hytale:EntityModule": "*"
     },
-    "OptionalDependencies": {
-        
-    },
-    "DisabledByDefault": false,
-    "Main": "com.nukku.PrivateChest",
-    "IncludesAssetPack": true
+    "OptionalDependencies": {},
+    "ServerVersion": "2026.02.19-1a311a592",
+    "Main": "com.nukku.PrivateChest"
 }
