@@ -12,9 +12,9 @@ hytale {
 
     dependencies {}
 
-
     manifest {
         Name = "PrivateChest"
+        Version = "1.2.3"
         Main = "com.nukku.PrivateChest"
         ServerVersion = "2026.02.19-1a311a592"
         IncludesAssetPack = false

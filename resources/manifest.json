@@ -1,0 +1,10 @@
+{
+    "Group": "ScaffoldIt",
+    "Name": "PrivateChest",
+    "Version": "1.2.3",
+    "Authors": [],
+    "DisabledByDefault": false,
+    "IncludesAssetPack": false,
+    "ServerVersion": "2026.02.19-1a311a592",
+    "Main": "com.nukku.PrivateChest"
+}
