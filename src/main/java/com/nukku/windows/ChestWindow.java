@@ -14,23 +14,27 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.nukku.components.ChestComponent;
 import com.nukku.datamanagers.DataManagers;
 import javax.annotation.Nonnull;
+import java.util.UUID;
 
 public class ChestWindow extends Window implements ItemContainerWindow {
 
     private final ItemContainer container;
-    private final PlayerRef playerRef;
+    private final PlayerRef viewerRef;
+    private final UUID ownerUuid;
     private final Integer chestPage;
     private final ChestComponent chest;
 
     public ChestWindow(
         ItemContainer container,
-        PlayerRef playerRef,
+        PlayerRef viewerRef,
+        UUID ownerUuid,
         Integer chestPage,
         ChestComponent chest
     ) {
         super(WindowType.Container);
         this.container = container;
-        this.playerRef = playerRef;
+        this.viewerRef = viewerRef;
+        this.ownerUuid = ownerUuid;
         this.chestPage = chestPage;
         this.chest = chest;
     }
@@ -79,6 +83,6 @@ public class ChestWindow extends Window implements ItemContainerWindow {
             }
         }
         chest.setItems(items);
-        DataManagers.get().save(playerRef.getUuid(), chestPage, chest);
+        DataManagers.get().save(ownerUuid, chestPage, chest);
     }
 }

@@ -21,6 +21,7 @@ import com.nukku.config.ChestConfig;
 import com.nukku.datamanagers.DataManagers;
 import com.nukku.windows.ChestWindow;
 import java.util.Collection;
+import java.util.UUID;
 import javax.annotation.Nonnull;
 
 public class ChestCommand extends AbstractPlayerCommand {
@@ -33,6 +34,7 @@ public class ChestCommand extends AbstractPlayerCommand {
         this.config = config;
         this.addUsageVariant(new ChestSelfPage(config));
         this.addUsageVariant(new ChestPlayerPage(config));
+        this.addUsageVariant(new ChestViewPlayerPage(config));
     }
 
     @Override
@@ -51,6 +53,7 @@ public class ChestCommand extends AbstractPlayerCommand {
         ChestWindow chestWindow = new ChestWindow(
             simpleItemContainer,
             playerRef,
+            playerRef.getUuid(),
             1,
             chest
         );
@@ -108,6 +111,7 @@ public class ChestCommand extends AbstractPlayerCommand {
             ChestWindow chestWindow = new ChestWindow(
                 simpleItemContainer,
                 playerRef,
+                playerRef.getUuid(),
                 commandContext.get(page),
                 chest
             );
@@ -165,12 +169,13 @@ public class ChestCommand extends AbstractPlayerCommand {
                             (short) config.get().getChestSize()
                         );
                     ChestComponent chest = DataManagers.get().load(
-                        playerRef.getUuid(),
+                        playerRefer.getUuid(),
                         commandContext.get(page)
                     );
                     ChestWindow chestWindow = new ChestWindow(
                         simpleItemContainer,
-                        playerRef,
+                        playerRefer,
+                        playerRefer.getUuid(),
                         commandContext.get(page),
                         chest
                     );
@@ -185,6 +190,87 @@ public class ChestCommand extends AbstractPlayerCommand {
                         );
                     }
                 }
+            }
+        }
+    }
+    static class ChestViewPlayerPage extends AbstractPlayerCommand {
+
+        private final Config<ChestConfig> config;
+        private final RequiredArg<Integer> page;
+        private final RequiredArg<String> viewer;
+        private final RequiredArg<String> owner;
+
+        ChestViewPlayerPage(Config<ChestConfig> config) {
+            super("");
+            this.config = config;
+            this.requirePermission("privatechest.use.admin");
+            this.page = this.withRequiredArg(
+                    "page",
+                    "Chest page",
+                    ArgTypes.INTEGER
+            );
+            this.viewer = this.withRequiredArg(
+                    "viewer",
+                    "Viewer",
+                    ArgTypes.STRING
+            );
+            this.owner = this.withRequiredArg(
+                    "owner",
+                    "Owner",
+                    ArgTypes.STRING
+            );
+        }
+
+        @Override
+        protected void execute(
+                @Nonnull CommandContext commandContext,
+                @Nonnull Store<EntityStore> store,
+                @Nonnull Ref<EntityStore> ref,
+                @Nonnull PlayerRef playerRef,
+                @Nonnull World world
+        ) {
+            PlayerRef ownerRef = null;
+            PlayerRef viewerRef = null;
+            Collection<PlayerRef> players = world.getPlayerRefs();
+            for (PlayerRef playerRefer : players) {
+                if (playerRefer.getUsername().equals(owner.get(commandContext))){
+                    System.out.println("Owner Username: "+playerRefer.getUsername());
+                    ownerRef = playerRefer;
+                    System.out.println("OwnerRef Username: "+ownerRef.getUsername());
+                }
+                if (playerRefer.getUsername().equals(viewer.get(commandContext))){
+                    System.out.println("Viewer Username: "+playerRefer.getUsername());
+                    viewerRef = playerRefer;
+                    System.out.println("ViewerRef Username: "+viewerRef.getUsername());
+                }
+            }
+            if (ownerRef != null && viewerRef != null){
+                SimpleItemContainer simpleItemContainer =
+                        new SimpleItemContainer(
+                                (short) config.get().getChestSize()
+                        );
+                ChestComponent chest = DataManagers.get().load(
+                        ownerRef.getUuid(),
+                        commandContext.get(page)
+                );
+                ChestWindow chestWindow = new ChestWindow(
+                        simpleItemContainer,
+                        viewerRef,
+                        ownerRef.getUuid(),
+                        commandContext.get(page),
+                        chest
+                );
+                Player viewerP = viewerRef.getReference()
+                        .getStore()
+                        .getComponent(viewerRef.getReference(), Player.getComponentType());
+                PageManager pageManager = viewerP.getPageManager();
+                pageManager.setPageWithWindows(
+                        ref,
+                        store,
+                        Page.Bench,
+                        true,
+                        new Window[] { chestWindow }
+                );
             }
         }
     }
