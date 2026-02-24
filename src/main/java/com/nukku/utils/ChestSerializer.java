@@ -26,7 +26,6 @@ public final class ChestSerializer {
             obj.addProperty("slot", slot);
             obj.addProperty("id", stack.getItem().getId());
             obj.addProperty("count", stack.getQuantity());
-            System.out.println(stack.getDurability());
             if (stack.getDurability() >= 1){
                 obj.addProperty("durability", stack.getDurability());
                 obj.addProperty("maxDurability", stack.getMaxDurability());

@@ -4,13 +4,23 @@ plugins {
     id("dev.scaffoldit") version "0.2.14"
 }
 
+common{
+    repositories {
+        maven("https://maven.hytale.com/release")
+    }
+    dependencies {
+        compileOnly("com.hypixel.hytale:Server:+")
+    }
+}
+
 hytale {
     usePatchline("release")
     useVersion("latest")
 
     repositories {}
+    dependencies {compileOnly("com.hypixel.hytale:Server:+")}
 
-    dependencies {}
+
 
     manifest {
         Name = "PrivateChest"

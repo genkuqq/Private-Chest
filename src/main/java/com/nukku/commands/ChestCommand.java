@@ -234,14 +234,10 @@ public class ChestCommand extends AbstractPlayerCommand {
             Collection<PlayerRef> players = world.getPlayerRefs();
             for (PlayerRef playerRefer : players) {
                 if (playerRefer.getUsername().equals(owner.get(commandContext))){
-                    System.out.println("Owner Username: "+playerRefer.getUsername());
                     ownerRef = playerRefer;
-                    System.out.println("OwnerRef Username: "+ownerRef.getUsername());
                 }
                 if (playerRefer.getUsername().equals(viewer.get(commandContext))){
-                    System.out.println("Viewer Username: "+playerRefer.getUsername());
                     viewerRef = playerRefer;
-                    System.out.println("ViewerRef Username: "+viewerRef.getUsername());
                 }
             }
             if (ownerRef != null && viewerRef != null){

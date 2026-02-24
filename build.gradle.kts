@@ -16,6 +16,10 @@ dependencies {
 }
 
 tasks {
+    jar {
+        enabled = false
+    }
+
     shadowJar {
         archiveClassifier.set("")
         mergeServiceFiles()
@@ -23,5 +27,13 @@ tasks {
 
         relocate("com.zaxxer.hikari", "com.nukku.libs.hikari")
         relocate("com.mysql", "com.nukku.libs.mysql")
+
+        dependencies {
+            exclude(dependency("com.hypixel.hytale:Server"))
+        }
+    }
+
+    build {
+        dependsOn(shadowJar)
     }
 }
