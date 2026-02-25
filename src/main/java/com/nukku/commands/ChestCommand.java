@@ -3,6 +3,7 @@ package com.nukku.commands;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.protocol.packets.interface_.Page;
+import com.hypixel.hytale.server.core.command.system.AbstractCommand;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.CommandSender;
 import com.hypixel.hytale.server.core.command.system.arguments.system.RequiredArg;
@@ -13,6 +14,7 @@ import com.hypixel.hytale.server.core.entity.entities.player.pages.PageManager;
 import com.hypixel.hytale.server.core.entity.entities.player.windows.Window;
 import com.hypixel.hytale.server.core.inventory.container.SimpleItemContainer;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.core.util.Config;
@@ -21,7 +23,7 @@ import com.nukku.config.ChestConfig;
 import com.nukku.datamanagers.DataManagers;
 import com.nukku.windows.ChestWindow;
 import java.util.Collection;
-import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nonnull;
 
 public class ChestCommand extends AbstractPlayerCommand {
@@ -193,7 +195,7 @@ public class ChestCommand extends AbstractPlayerCommand {
             }
         }
     }
-    static class ChestViewPlayerPage extends AbstractPlayerCommand {
+    static class ChestViewPlayerPage extends AbstractCommand {
 
         private final Config<ChestConfig> config;
         private final RequiredArg<Integer> page;
@@ -222,52 +224,63 @@ public class ChestCommand extends AbstractPlayerCommand {
         }
 
         @Override
-        protected void execute(
-                @Nonnull CommandContext commandContext,
-                @Nonnull Store<EntityStore> store,
-                @Nonnull Ref<EntityStore> ref,
-                @Nonnull PlayerRef playerRef,
-                @Nonnull World world
+        protected CompletableFuture<Void> execute(
+                @Nonnull CommandContext commandContext
         ) {
-            PlayerRef ownerRef = null;
-            PlayerRef viewerRef = null;
-            Collection<PlayerRef> players = world.getPlayerRefs();
-            for (PlayerRef playerRefer : players) {
-                if (playerRefer.getUsername().equals(owner.get(commandContext))){
-                    ownerRef = playerRefer;
-                }
-                if (playerRefer.getUsername().equals(viewer.get(commandContext))){
-                    viewerRef = playerRefer;
-                }
-            }
-            if (ownerRef != null && viewerRef != null){
-                SimpleItemContainer simpleItemContainer =
-                        new SimpleItemContainer(
-                                (short) config.get().getChestSize()
-                        );
-                ChestComponent chest = DataManagers.get().load(
-                        ownerRef.getUuid(),
-                        commandContext.get(page)
-                );
-                ChestWindow chestWindow = new ChestWindow(
-                        simpleItemContainer,
-                        viewerRef,
-                        ownerRef.getUuid(),
-                        commandContext.get(page),
-                        chest
-                );
-                Player viewerP = viewerRef.getReference()
-                        .getStore()
-                        .getComponent(viewerRef.getReference(), Player.getComponentType());
-                PageManager pageManager = viewerP.getPageManager();
-                pageManager.setPageWithWindows(
-                        ref,
-                        store,
-                        Page.Bench,
-                        true,
-                        new Window[] { chestWindow }
-                );
-            }
+            World world = Universe.get().getPlayers().get(0)
+                    .getReference()
+                    .getStore().getExternalData().getWorld();
+            int pageC = page.get(commandContext);
+            world.getPlayerRefs().forEach(viewerRef -> {
+
+                if (!viewerRef.getUsername().equals(viewer.get(commandContext))) return;
+
+                PlayerRef ownerRef = world.getPlayerRefs().stream()
+                        .filter(p -> p.getUsername().equals(owner.get(commandContext)))
+                        .findFirst()
+                        .orElse(null);
+
+                if (ownerRef == null) return;
+
+                world.execute(() ->
+                {
+                    Ref<EntityStore> viewerEntityRef = viewerRef.getReference();
+                    Store<EntityStore> viewerStore = viewerEntityRef.getStore();
+
+                    Player viewerPlayer = viewerStore.getComponent(
+                            viewerEntityRef,
+                            Player.getComponentType()
+                    );
+
+                    if (viewerPlayer == null) return;
+
+                    SimpleItemContainer container =
+                            new SimpleItemContainer((short) config.get().getChestSize());
+
+                    ChestComponent chest = DataManagers.get().load(
+                            ownerRef.getUuid(),
+                            pageC
+                    );
+
+                    ChestWindow chestWindow = new ChestWindow(
+                            container,
+                            viewerRef,
+                            ownerRef.getUuid(),
+                            pageC,
+                            chest
+                    );
+
+                    viewerPlayer.getPageManager().setPageWithWindows(
+                            viewerEntityRef,
+                            viewerStore,
+                            Page.Bench,
+                            true,
+                            new Window[]{chestWindow}
+                    );
+                });
+            });
+
+            return CompletableFuture.completedFuture(null);
         }
     }
 }
